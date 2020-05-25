@@ -1,4 +1,4 @@
-import React,{useRef, useState} from 'react';
+import React,{useRef, useState, useEffect} from 'react';
 import {
     View,
     Text,
@@ -14,11 +14,28 @@ import StyleMain from '../../Style/Main';
 import StylePattern from '../../Style/StylePattern';
 import { ScrollView } from 'react-native-gesture-handler';
 import MessageErrors from '../../Components/errors/messageError';
+import Axios from 'axios';
 
 export default function RegistrationPessoal({navigation}){
     const formRef = useRef(null);
     const [showError, setShowError] = useState(false)
     const [messageError, setMessageError] = useState(null);
+    const [cep, setCep] = useState(null);
+    const [dataCep, setDataCep] = useState({});
+
+    useEffect(() => {
+        async function getDataCep(cep){
+            if(cep.length === 8)
+            {
+                const url = `https://viacep.com.br/ws/${cep}/json/`;
+                const dataCep = await Axios.get(url)
+                setDataCep(dataCep.data)
+            }
+        }
+        if(cep !== null & cep !== '' & cep !== undefined)
+        getDataCep(cep)
+    },[cep])
+
 
     function handleSubmit(data){
         const valuesData = Object.values(data);
@@ -50,13 +67,17 @@ export default function RegistrationPessoal({navigation}){
                             <Input
                                 name="complete_name"
                                 placeholder="Digite seu nome completo"
-                                placeholderTextColor={StylePattern.color_white}
+                                autoCapitalize="words"
+                                maxLength={200}
+                                placeholderTextColor={StylePattern.color_green_light}
                             />
                             <Input
                                 name="mail"
                                 keyboardType="email-address"
                                 placeholder="Digite seu e-mail"
-                                placeholderTextColor={StylePattern.color_white}
+                                autoCapitalize="none"
+                                maxLength={200}
+                                placeholderTextColor={StylePattern.color_green_light}
                             />
                         </View>
                         <View style={StyleUnique.containerFields}>
@@ -65,33 +86,42 @@ export default function RegistrationPessoal({navigation}){
                             </View>
                             <Input
                                 name="zipcode"
+                                keyboardType="numeric"
                                 placeholder="CEP"
-                                placeholderTextColor={StylePattern.color_white}
+                                maxLength={8}
+                                placeholderTextColor={StylePattern.color_green_light}
+                                onChangeText={contentCEP => {
+                                    setCep(contentCEP)
+                                }}
                             />
                             <Input
                                 name="address"
                                 placeholder="Digite seu endereço"
-                                placeholderTextColor={StylePattern.color_white}
+                                autoCapitalize="words"
+                                maxLength={255}
+                                placeholderTextColor={StylePattern.color_green_light}
                             />
                             <Input
                                 name="neighborhood"
                                 placeholder="Digite seu bairro"
-                                placeholderTextColor={StylePattern.color_white}
+                                autoCapitalize="words"
+                                maxLength={200}
+                                placeholderTextColor={StylePattern.color_green_light}
                             />
                             <Input
                                 name="city"
                                 placeholder="Digite sua cidade"
-                                placeholderTextColor={StylePattern.color_white}
+                                maxLength={200}
+                                placeholderTextColor={StylePattern.color_green_light}
+                                value={dataCep.localidade || ''}
                             />
                             <Input
                                 name="uf"
                                 placeholder="UF"
-                                placeholderTextColor={StylePattern.color_white}
-                            />
-                            <Input
-                                name="country"
-                                placeholder="Digite seu país"
-                                placeholderTextColor={StylePattern.color_white}
+                                autoCapitalize="characters"
+                                maxLength={2}
+                                placeholderTextColor={StylePattern.color_green_light}
+                                value={dataCep.uf || ''}
                             />
                         </View>
                         <TouchableOpacity style={StyleUnique.btnSubmit} onPress={() => formRef.current.submitForm()}>
