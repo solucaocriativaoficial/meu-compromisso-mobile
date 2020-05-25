@@ -75,7 +75,7 @@ const Style = StyleSheet.create({
         color: StylePattern.color_white,
         fontWeight: "bold",
         fontSize: StylePattern.fontSizeSmall,
-    }
+    },
 })
 
 export default Style;
